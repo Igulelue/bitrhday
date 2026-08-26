@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карта твоего дня рождения</title>
+
+  <style>
+    @font-face {
+      font-family: Ndot55;
+      src: url("assets/Ndot 55/Web Fonts/Ndot 55.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --pink: #ef476f;
+      --pink-light: #ffb6c9;
+      --gray-heart: #777b86;
+      --white: #fff;
+      --glass: rgba(255,255,255,.15);
+      --border: rgba(255,255,255,.38);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--white);
+      font-family: Ndot55, monospace;
+      --spot-x: 14%;
+      --spot-y: 12%;
+      --parallax-x: 0px;
+      --parallax-y: 0px;
+      background:
+        linear-gradient(125deg, #080808 0%, #321223 34%, #842b51 68%, #f394ad 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -12%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .82;
+      filter: blur(70px);
+      transform: translate3d(var(--parallax-x), var(--parallax-y), 0) scale(1.08);
+      transition: background .45s ease, transform .2s ease-out;
+      background:
+        radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(255,231,239,.28) 0, rgba(255,190,211,.14) 11%, transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(239,71,111,.5) 0, transparent 34%),
+        radial-gradient(circle at 88% 92%, rgba(118,39,67,.9) 0, transparent 38%),
+        radial-gradient(circle at 42% 68%, rgba(255,143,170,.28) 0, transparent 35%);
+      animation: backgroundDrift 18s ease-in-out infinite alternate;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -4%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .2;
+      background-image: radial-gradient(circle, rgba(255,255,255,.72) 0 1px, transparent 1.5px);
+      background-size: 8px 8px;
+      transform: translate3d(
+        calc(var(--parallax-x) * .2 + var(--cursor-dot-x, 0px)),
+        calc(var(--parallax-y) * .2 + var(--cursor-dot-y, 0px)),
+        0
+      );
+      transition: transform .8s cubic-bezier(.22,.8,.24,1), opacity .8s ease;
+      animation: dotPulse 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes dotPulse {
+      from {
+        opacity: .12;
+      }
+
+      to {
+        opacity: .24;
+      }
+    }
+
+    @keyframes backgroundDrift {
+      from {
+        transform: translate3d(var(--parallax-x), var(--parallax-y), 0) scale(1.08) translate3d(-1%, -1%, 0);
+      }
+
+      to {
+        transform: translate3d(var(--parallax-x), var(--parallax-y), 0) scale(1.14) translate3d(1%, 1%, 0);
+      }
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -60px;
+      color: #fff;
+      font-size: 24px;
+      font-family: monospace;
+      font-weight: bold;
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+      text-shadow: 0 0 16px #fff, 3px 3px 0 var(--pink);
+      will-change: transform, opacity;
+      translate: calc(var(--wind-x, 0px) + var(--cursor-x, 0px)) calc(var(--wind-y, 0px) + var(--cursor-y, 0px));
+      transition: translate 1.1s cubic-bezier(.22,.8,.24,1);
+      animation: floatUp linear forwards;
+    }
+
+    .floating-cat {
+      position: absolute;
+      bottom: -70px;
+      color: #ffe9a8;
+      font-size: 20px;
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: -3px;
+      white-space: nowrap;
+      text-shadow: 0 0 14px rgba(255,239,177,.9), 3px 3px 0 #b75b78;
+      image-rendering: pixelated;
+      will-change: transform, opacity;
+      translate: calc(var(--wind-x, 0px) + var(--cursor-x, 0px)) calc(var(--wind-y, 0px) + var(--cursor-y, 0px));
+      transition: translate 1.1s cubic-bezier(.22,.8,.24,1);
+      animation: floatCat linear forwards;
+    }
+
+    .pixel-cat {
+      display: inline-block;
+      color: #ffe9a8;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: -3px;
+      line-height: 1;
+      text-shadow: 2px 2px 0 #9e3e62, 0 0 12px rgba(255,233,168,.8);
+      transform: rotate(-3deg);
+      animation: catWiggle 2.8s ease-in-out infinite;
+    }
+
+    .cat-corner {
+      position: absolute;
+      right: 22px;
+      bottom: 18px;
+      pointer-events: none;
+    }
+
+    .cat-badge {
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @keyframes floatCat {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-8deg) scale(.72);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      55% {
+        transform: translate3d(calc(var(--flight-x, 0px) * .45), -52vh, 0) rotate(8deg) scale(1);
+      }
+
+      100% {
+        transform: translate3d(var(--flight-x, 0px), calc(-115vh + var(--flight-y, 0px)), 0) rotate(-5deg) scale(.82);
+        opacity: 0;
+      }
+    }
+
+    @keyframes catWiggle {
+      50% {
+        transform: rotate(3deg) translateY(-3px);
+      }
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(-12deg) scale(.7);
+        opacity: 0;
+      }
+
+      15% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate3d(var(--flight-x, 0px), calc(-115vh + var(--flight-y, 0px)), 0) rotate(30deg) scale(.9);
+        opacity: 0;
+      }
+    }
+
+    .screen,
+    .content {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      padding: 22px;
+    }
+
+    .screen {
+      display: grid;
+      place-items: center;
+    }
+
+    .glass,
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--glass);
+      box-shadow: 0 25px 80px rgba(0,0,0,.28);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+    }
+
+    .glass {
+      width: min(700px, 100%);
+      padding: clamp(28px, 7vw, 70px);
+      text-align: center;
+      border-radius: 32px;
+      position: relative;
+      background: rgba(8, 8, 12, .58);
+      border-color: rgba(255,255,255,.26);
+      box-shadow: 0 25px 90px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
+      animation: appear 1.2s ease both;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(25px) scale(.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .logo {
+      margin-bottom: 22px;
+      font-size: 42px;
+      letter-spacing: -9px;
+      text-shadow: 0 0 20px #fff;
+      animation: logoGlow 5s ease-in-out infinite;
+    }
+
+    @keyframes logoGlow {
+      0%, 100% { filter: brightness(.9) drop-shadow(0 0 6px rgba(255,255,255,.2)); }
+      50% { filter: brightness(1.3) drop-shadow(0 0 22px rgba(255,190,211,.75)); }
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(34px, 8vw, 76px);
+      line-height: .95;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .muted {
+      opacity: .68;
+    }
+
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 32px 0;
+    }
+
+    .countdown-finished {
+      margin: 28px 0 22px;
+      color: #fff0f5;
+      font-size: clamp(18px, 3vw, 28px);
+      line-height: 1.2;
+      text-shadow: 0 0 18px rgba(255,182,201,.9);
+      animation: finishedReveal 1.4s ease both, finishedGlow 4s ease-in-out 1.4s infinite;
+    }
+
+    @keyframes finishedReveal {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes finishedGlow {
+      50% {
+        text-shadow: 0 0 30px rgba(255,182,201,1);
+      }
+    }
+
+    .time {
+      min-width: 88px;
+      padding: 15px 9px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(0,0,0,.23);
+      animation: pulse 4.8s ease-in-out infinite;
+    }
+
+    .time:nth-child(2) { animation-delay: .2s; }
+    .time:nth-child(3) { animation-delay: .4s; }
+    .time:nth-child(4) { animation-delay: .6s; }
+
+    @keyframes pulse {
+      50% {
+        box-shadow: 0 0 22px rgba(255,255,255,.22);
+      }
+    }
+
+    .time strong {
+      display: block;
+      font-size: 30px;
+    }
+
+    .time span {
+      font-size: 10px;
+      opacity: .65;
+    }
+
+    .btn {
+      padding: 14px 23px;
+      color: #151015;
+      border: 1px solid #fff;
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform .55s ease, box-shadow .7s ease, background-color .55s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 28px rgba(255,255,255,.65);
+    }
+
+    .btn:active {
+      transform: scale(.96);
+    }
+
+    .content {
+      width: min(1250px, 100%);
+      margin: auto;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+      animation: appear 1.1s ease both;
+    }
+
+    .top h1 {
+      font-size: clamp(32px, 5vw, 58px);
+    }
+
+    .panel {
+      padding: 20px;
+      border-radius: 28px;
+      background: rgba(0,0,0,.25);
+      position: relative;
+      animation: panelReveal .8s cubic-bezier(.22,.8,.24,1) both;
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    }
+
+    .panel:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .panel:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,.52);
+      box-shadow: 0 30px 90px rgba(0,0,0,.34), 0 0 32px rgba(255,143,170,.1);
+    }
+
+    @keyframes panelReveal {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .map-badge {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      color: #fff;
+      border: 1px solid rgba(255,190,211,.7);
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(35,12,24,.96), rgba(126,36,70,.94));
+      box-shadow: 0 8px 20px rgba(37,11,24,.5), 0 0 16px rgba(255,143,170,.35), inset 0 1px 0 rgba(255,255,255,.2);
+      text-align: center;
+      font-family: Ndot55, monospace;
+      font-size: 14px;
+      animation: badgeFloat 7s ease-in-out infinite;
+    }
+
+    .map-balloon-shell {
+      transform: translateX(-20px);
+    }
+
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-5px) rotate(.8deg); }
+    }
+
+    .map-balloon-shell {
+      position: relative;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .map-balloon-shell::before,
+    .map-balloon-shell::after {
+      display: none !important;
+    }
+
+    [class*="balloon__layout"],
+    [class*="balloon__content"] {
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    [class*="balloon__layout"]::before,
+    [class*="balloon__layout"]::after,
+    [class*="balloon__content"]::before,
+    [class*="balloon__content"]::after {
+      display: none !important;
+    }
+
+    [class*="balloon__tail"] {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    [class*="balloon__close"] {
+      display: none !important;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+
+    #map {
+      width: 100%;
+      min-height: 620px;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    .progress {
+      height: 8px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,.2);
+    }
+
+    .progress div {
+      width: 0;
+      height: 100%;
+      background: var(--pink-light);
+      box-shadow: 0 0 18px #fff;
+      transition: width .5s ease;
+      animation: progressGlow 4.5s ease-in-out infinite;
+    }
+
+    @keyframes progressGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,.55); }
+      50% { box-shadow: 0 0 30px rgba(255,182,201,1); }
+    }
+
+    .point-card {
+      animation: appear .9s ease both;
+    }
+
+    .point-frame,
+    .main-photo {
+      width: 100%;
+      height: 220px;
+      border-radius: 18px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      box-shadow: 0 14px 34px rgba(0,0,0,.3);
+    }
+
+    .point-frame {
+      background: rgba(0,0,0,.18);
+    }
+
+    .point-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0;
+    }
+
+    .gift-frame {
+      width: 100%;
+      height: min(52vh, 520px);
+      min-height: 240px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,190,211,.35);
+      border-radius: 22px;
+      background: rgba(0,0,0,.22);
+      box-shadow: inset 0 0 28px rgba(0,0,0,.25), 0 14px 34px rgba(0,0,0,.3);
+      cursor: pointer;
+    }
+
+    .gift-frame .main-photo {
+      display: block;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      object-fit: contain;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .gift-frame .main-photo:hover {
+      transform: scale(1.025);
+      box-shadow: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      color: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      outline: none;
+      background: rgba(0,0,0,.3);
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,.6);
+    }
+
+    .message {
+      min-height: 24px;
+      margin: 12px 0;
+      color: #ffd2df;
+    }
+
+    .carousel {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .carousel-frame {
+      width: 145px;
+      min-height: 190px;
+      flex: 0 0 auto;
+      padding: 0;
+      color: #fff;
+      border: 1px solid rgba(255,190,211,.28);
+      border-radius: 18px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      background: rgba(0,0,0,.2);
+      box-shadow: 0 10px 24px rgba(0,0,0,.3);
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: border-color .45s ease, box-shadow .45s ease, background-color .45s ease;
+    }
+
+    .carousel-frame img {
+      width: 100%;
+      height: 145px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .carousel-frame:hover {
+      border-color: rgba(255,190,211,.72);
+      box-shadow: 0 16px 32px rgba(0,0,0,.42), 0 0 20px rgba(255,143,170,.2);
+    }
+
+    .carousel-frame:focus-visible,
+    .carousel-frame.is-selected {
+      outline: 2px solid #ffb6c9;
+      outline-offset: 3px;
+      border-color: #ffb6c9;
+      background: rgba(255,143,170,.12);
+      box-shadow: 0 16px 32px rgba(0,0,0,.42), 0 0 26px rgba(255,143,170,.34);
+    }
+
+    .carousel-description {
+      display: block;
+      min-height: 44px;
+      padding: 10px 9px 12px;
+      color: #ffdce6;
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .gift-preview {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(8,8,12,.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .gift-preview-window {
+      position: relative;
+      width: min(520px, 100%);
+      max-height: min(86vh, 680px);
+      overflow: auto;
+      padding: 22px;
+      border: 1px solid rgba(255,190,211,.55);
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(25,10,19,.98), rgba(87,25,49,.97));
+      box-shadow: 0 28px 90px rgba(0,0,0,.62), 0 0 34px rgba(255,96,145,.2);
+      animation: previewReveal .45s cubic-bezier(.22,.8,.24,1) both;
+    }
+
+    .gift-preview-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 50%;
+      background: rgba(0,0,0,.3);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .gift-preview-image {
+      display: block;
+      width: 100%;
+      max-height: 52vh;
+      margin: 0 auto 18px;
+      object-fit: contain;
+      border-radius: 14px;
+      background: rgba(0,0,0,.2);
+    }
+
+    .gift-preview-description {
+      margin: 0;
+      color: #ffdce6;
+      line-height: 1.4;
+    }
+
+    @keyframes previewReveal {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    #finalGift {
+      margin-top: 20px;
+    }
+
+    .gift-modal {
+      width: 100%;
+      margin: auto;
+      padding: clamp(22px, 5vw, 48px);
+      border: 1px solid rgba(255,190,211,.48);
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(25,10,19,.96), rgba(87,25,49,.94));
+      box-shadow: 0 30px 100px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.1);
+      text-align: center;
+      animation: giftReveal 1.4s cubic-bezier(.22,.8,.24,1) both;
+      box-shadow: 0 30px 100px rgba(0,0,0,.6), 0 0 34px rgba(255,96,145,.14), inset 0 1px 0 rgba(255,255,255,.1);
+    }
+
+    @keyframes giftReveal {
+      from {
+        opacity: 0;
+        transform: translateY(35px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .gift-modal .main-photo {
+      width: min(720px, 100%);
+      margin-right: auto;
+      margin-left: auto;
+      max-height: min(42vh, 360px);
+      height: auto;
+      object-fit: cover;
+    }
+
+    .gift-frame .main-photo {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      max-height: 100%;
+      margin: 0;
+      object-fit: contain;
+      transform: none;
+    }
+
+    .gift-frame .main-photo:hover {
+      transform: none;
+    }
+
+    .gift-modal .carousel {
+      justify-content: center;
+    }
+
+    @media (max-width: 850px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      #map {
+        min-height: 460px;
+      }
+
+      .top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .screen,
+      .content {
+        padding: 8px;
+      }
+
+      .glass,
+      .panel {
+        border-radius: 18px;
+      }
+
+      .glass {
+        padding: 22px 14px;
+      }
+
+      .panel {
+        padding: 11px;
+      }
+
+      h1 {
+        font-size: 30px;
+      }
+
+      .top {
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .top h1 {
+        font-size: 30px;
+      }
+
+      .top h1 .pixel-cat {
+        font-size: 13px;
+      }
+
+      .countdown {
+        gap: 6px;
+        margin: 20px 0;
+      }
+
+      .time {
+        min-width: 61px;
+        padding: 10px 5px;
+      }
+
+      .time strong {
+        font-size: 20px;
+      }
+
+      #map {
+        min-height: 320px;
+      }
+
+      .point-frame,
+      .main-photo {
+        height: 155px;
+      }
+
+      .gift-frame {
+        height: min(58vh, 390px);
+        min-height: 190px;
+      }
+
+      .btn {
+        padding: 11px 15px;
+        font-size: 12px;
+      }
+
+      .gift-modal {
+        padding: 20px 14px;
+        border-radius: 20px;
+      }
+
+      .carousel-frame {
+        width: 92px;
+        min-height: 136px;
+      }
+
+      .carousel-frame img {
+        height: 92px;
+      }
+
+      .carousel-description {
+        min-height: 42px;
+        padding: 8px 6px 10px;
+        font-size: 9px;
+      }
+
+      .gift-preview-window {
+        padding: 18px 14px;
+        border-radius: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <section class="screen" id="countdownScreen">
+    <div class="glass">
+      <div class="logo">/// <span class="pixel-cat cat-badge" aria-hidden="true">=^･ω･^=</span></div>
+      <p class="muted">один маленький сюрприз</p>
+      <h1>До твоего дня рождения</h1>
+
+      <div class="countdown" id="countdown">
+        <div class="time">
+          <strong id="days">00</strong>
+          <span>ДНЕЙ</span>
+        </div>
+
+        <div class="time">
+          <strong id="hours">00</strong>
+          <span>ЧАСОВ</span>
+        </div>
+
+        <div class="time">
+          <strong id="minutes">00</strong>
+          <span>МИНУТ</span>
+        </div>
+
+        <div class="time">
+          <strong id="seconds">00</strong>
+          <span>СЕКУНД</span>
+        </div>
+      </div>
+
+      <p class="hidden countdown-finished" id="countdownFinished">
+        Поздравляю! Вот твой подарок, любимая
+      </p>
+
+      <button class="btn hidden" id="viewButton">
+        Мипнуть
+      </button>
+
+      <span class="pixel-cat cat-corner" aria-hidden="true">ฅ^•ﻌ•^ฅ</span>
+    </div>
+  </section>
+
+  <main class="content hidden" id="mainContent">
+    <header class="top">
+      <div>
+        <p class="muted">29.08.2026 · Санкт-Петербург</p>
+        <h1>Карта мип <span class="pixel-cat cat-badge" aria-hidden="true">=^･ω･^=</span></h1>
+      </div>
+
+      <div class="panel">
+        Открыто: <b id="openedCount">0</b> / 6
+        <span class="pixel-cat cat-badge" aria-hidden="true">ฅ^•ﻌ•^ฅ</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <div id="map"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+
+        <div id="pointInfo">
+          <h2>Выбери точку №1</h2>
+          <p class="muted">
+            Серые сердечки закрыты. Открывай точки по порядку.
+          </p>
+        </div>
+
+      </aside>
+    </div>
+
+    <div class="hidden" id="finalGift">
+      <div class="gift-modal">
+        <h2>Главный подарок <span class="pixel-cat cat-badge" aria-hidden="true">=^･ω･^=</span></h2>
+        <p>Введи финальное слово из всех карточек!</p>
+
+        <input id="finalCode" placeholder="Финальное слово">
+
+        <button class="btn" id="openFinal">
+          Открыть главный подарок
+        </button>
+
+        <div class="message" id="finalMessage"></div>
+
+        <div class="hidden" id="giftContent">
+          <div class="gift-frame" id="mainGiftFrame" role="button" tabindex="0" aria-label="Открыть главный подарок">
+            <img
+              class="main-photo"
+              src="assets/images/main-gift.png"
+              alt="Главный подарок"
+            >
+          </div>
+
+          <h2>Ты нашла его ❤️</h2>
+          <p>Поздравляю тебя моя хорошая девочка, обожаю тебя и желаю всего самого лчшего тебе в жизни, никогда не сдавайся и будь лучшей до конца</p>
+
+          <div class="carousel">
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-1.png" alt="Подарок 1">
+              <span class="carousel-description">Описание подарка 1</span>
+            </button>
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-2.png" alt="Подарок 2">
+              <span class="carousel-description">Описание подарка 2</span>
+            </button>
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-3.png" alt="Подарок 3">
+              <span class="carousel-description">Описание подарка 3</span>
+            </button>
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-4.png" alt="Подарок 4">
+              <span class="carousel-description">Описание подарка 4</span>
+            </button>
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-5.png" alt="Подарок 5">
+              <span class="carousel-description">Описание подарка 5</span>
+            </button>
+            <button class="carousel-frame" type="button" aria-pressed="false">
+              <img src="assets/images/gift-6.png" alt="Подарок 6">
+              <span class="carousel-description">Описание подарка 6</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gift-preview hidden" id="giftPreview" role="dialog" aria-modal="true" aria-labelledby="giftPreviewTitle">
+      <div class="gift-preview-window">
+        <button class="gift-preview-close" id="closeGiftPreview" type="button" aria-label="Закрыть">&times;</button>
+        <h2 id="giftPreviewTitle">Подарок</h2>
+        <img class="gift-preview-image" id="giftPreviewImage" src="" alt="">
+        <p class="gift-preview-description" id="giftPreviewDescription"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- filepath: d:\quest\Index.html -->
+  <!-- Замени YANDEX_API_KEY на свой ключ -->
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=YANDEX_API_KEY&lang=ru_RU"></script>
+
+  <script>
+    const birthday = new Date("2026-08-29T00:00:00+03:00");
+
+    const points = [
+      {
+        title: "Первая точка",
+        coords: [59.965, 30.250],
+        code: "1",
+        image: "assets/images/point-1.jpg",
+        giftImage: "assets/images/gift-1.png",
+        readyToOpen: false,
+        description: "Изогнутое зеркало! теперь у нас дома будет вайб парковки! (реклама ООО макс.ру)"
+      },
+      {
+        title: "Вторая точка",
+        coords: [59.985, 30.320],
+        code: "2",
+        image: "assets/images/point-2.jpg",
+        giftImage: "assets/images/gift-2.png",
+        readyToOpen: false,
+        description: "Ремешок для фотика! теперь тебе будет удобнее его носить, ну и выглядит получше)"
+      },
+      {
+        title: "Третья точка",
+        coords: [59.965, 30.400],
+        code: "3",
+        image: "assets/images/point-3.jpg",
+        giftImage: "assets/images/gift-3.png",
+        readyToOpen: false,
+        description: "Фотоальбом! будем в него собирать фотки свои класные, где их печатать только("
+      },
+      {
+        title: "Четвёртая точка",
+        coords: [59.875, 30.400],
+        code: "4",
+        image: "assets/images/point-4.jpg",
+        giftImage: "assets/images/gift-4.png",
+        readyToOpen: false,
+        description: "Картридж какой-то, догадываешься от чего?"
+      },
+      {
+        title: "Пятая точка",
+        coords: [59.800, 30.320],
+        code: "5",
+        image: "assets/images/point-5.jpg",
+        giftImage: "assets/images/gift-5.png",
+        readyToOpen: false,
+        description: "Калимба, ну что б преподов доставать"
+      },
+      {
+        title: "Шестая точка",
+        coords: [59.875, 30.250],
+        code: "6",
+        image: "assets/images/point-6.jpg",
+        giftImage: "assets/images/gift-6.png",
+        readyToOpen: false,
+        description: "Полароид, ну вот с него фотки и будем в альбом складывать, но будь осторожна, в одном картридже их всего 8"
+      }
+    ];
+
+    const FINAL_CODE = "NOTHING";
+    const STORAGE_KEY = "birthday-gift-progress";
+
+    let opened = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    let finalOpened = localStorage.getItem("birthday-gift-final") === "true";
+    let map;
+    let lines = [];
+    let lineAnimation;
+    let parallaxFrame;
+    let parallaxX = 0;
+    let parallaxY = 0;
+    let targetParallaxX = 0;
+    let targetParallaxY = 0;
+    let flightDirectionX = 0;
+    let flightDirectionY = 0;
+    let targetFlightDirectionX = 0;
+    let targetFlightDirectionY = 0;
+    let flightDirectionFrame;
+    let cursorParallaxX = 0;
+    let cursorParallaxY = 0;
+    let targetCursorParallaxX = 0;
+    let targetCursorParallaxY = 0;
+    let cursorParallaxFrame;
+
+    const $ = id => document.getElementById(id);
+
+    function animateParallax() {
+      parallaxX += (targetParallaxX - parallaxX) * .08;
+      parallaxY += (targetParallaxY - parallaxY) * .08;
+
+      document.body.style.setProperty("--parallax-x", `${parallaxX}px`);
+      document.body.style.setProperty("--parallax-y", `${parallaxY}px`);
+
+      if (Math.abs(targetParallaxX - parallaxX) > .1 ||
+          Math.abs(targetParallaxY - parallaxY) > .1) {
+        parallaxFrame = requestAnimationFrame(animateParallax);
+      } else {
+        parallaxFrame = null;
+      }
+    }
+
+    function setParallaxTarget(x, y) {
+      targetParallaxX = Math.max(-600, Math.min(600, x));
+      targetParallaxY = Math.max(-600, Math.min(600, y));
+
+      if (!parallaxFrame) {
+        parallaxFrame = requestAnimationFrame(animateParallax);
+      }
+    }
+
+    function setFlightDirection(x, y) {
+      const length = Math.hypot(x, y);
+
+      if (length < 3) {
+        return;
+      }
+
+      targetFlightDirectionX = x / length * 180;
+      targetFlightDirectionY = y / length * 70;
+
+      if (!flightDirectionFrame) {
+        flightDirectionFrame = requestAnimationFrame(animateFlightDirection);
+      }
+    }
+
+    function animateFlightDirection() {
+      flightDirectionX += (targetFlightDirectionX - flightDirectionX) * .045;
+      flightDirectionY += (targetFlightDirectionY - flightDirectionY) * .045;
+
+      document.querySelectorAll(".floating-heart, .floating-cat").forEach(particle => {
+        particle.style.setProperty("--flight-x", `${flightDirectionX}px`);
+        particle.style.setProperty("--flight-y", `${flightDirectionY}px`);
+        particle.style.setProperty("--wind-x", `${flightDirectionX * .35}px`);
+        particle.style.setProperty("--wind-y", `${flightDirectionY * .35}px`);
+      });
+
+      if (Math.abs(targetFlightDirectionX - flightDirectionX) > .2 ||
+          Math.abs(targetFlightDirectionY - flightDirectionY) > .2) {
+        flightDirectionFrame = requestAnimationFrame(animateFlightDirection);
+      } else {
+        flightDirectionFrame = null;
+      }
+    }
+
+    function setFlightDirectionFromPosition(position) {
+      if (Math.abs(position) < .12) {
+        setFlightDirection(0, -1);
+        return;
+      }
+
+      setFlightDirection(position > 0 ? 1 : -1, 0);
+    }
+
+    function animateParticleParallax() {
+      cursorParallaxX += (targetCursorParallaxX - cursorParallaxX) * .07;
+      cursorParallaxY += (targetCursorParallaxY - cursorParallaxY) * .07;
+
+      document.querySelectorAll(".floating-heart, .floating-cat").forEach(particle => {
+        particle.style.setProperty("--cursor-x", `${cursorParallaxX}px`);
+        particle.style.setProperty("--cursor-y", `${cursorParallaxY}px`);
+      });
+
+      document.body.style.setProperty("--cursor-dot-x", `${cursorParallaxX * .18}px`);
+      document.body.style.setProperty("--cursor-dot-y", `${cursorParallaxY * .18}px`);
+
+      if (Math.abs(targetCursorParallaxX - cursorParallaxX) > .1 ||
+          Math.abs(targetCursorParallaxY - cursorParallaxY) > .1) {
+        cursorParallaxFrame = requestAnimationFrame(animateParticleParallax);
+      } else {
+        cursorParallaxFrame = null;
+      }
+    }
+
+    function setParticleParallax(x, y) {
+      targetCursorParallaxX = Math.max(-140, Math.min(140, x));
+      targetCursorParallaxY = Math.max(-30, Math.min(30, y));
+
+      if (!cursorParallaxFrame) {
+        cursorParallaxFrame = requestAnimationFrame(animateParticleParallax);
+      }
+    }
+
+    function moveBackgroundWithPointer(event) {
+      const horizontalPosition = event.clientX / window.innerWidth - .50;
+      const verticalPosition = event.clientY / window.innerHeight - .50;
+
+      setFlightDirectionFromPosition(horizontalPosition);
+      setParticleParallax(horizontalPosition * 280, verticalPosition * 200);
+    }
+
+    document.addEventListener("pointermove", moveBackgroundWithPointer);
+    document.addEventListener("pointerdown", moveBackgroundWithPointer);
+
+    function moveBackgroundWithDevice(event) {
+      if (event.gamma === null || event.beta === null) {
+        return;
+      }
+
+      setFlightDirectionFromPosition(event.gamma / 30);
+      setParticleParallax(event.gamma / 30 * 28, event.beta / 30 * 20);
+      setParallaxTarget(event.gamma / 30 * 18, event.beta / 30 * 18);
+    }
+
+    function enableDeviceParallax() {
+      if (!("DeviceOrientationEvent" in window)) {
+        return;
+      }
+
+      if (typeof DeviceOrientationEvent.requestPermission === "function") {
+        DeviceOrientationEvent.requestPermission()
+          .then(permission => {
+            if (permission === "granted") {
+              window.addEventListener("deviceorientation", moveBackgroundWithDevice);
+            }
+          })
+          .catch(() => {});
+        return;
+      }
+
+      window.addEventListener("deviceorientation", moveBackgroundWithDevice);
+    }
+
+    function updateCountdown() {
+      const left = birthday.getTime() - Date.now();
+
+      if (left <= 0) {
+        $("days").textContent = "00";
+        $("hours").textContent = "00";
+        $("minutes").textContent = "00";
+        $("seconds").textContent = "00";
+        $("countdownFinished").classList.remove("hidden");
+        $("viewButton").classList.remove("hidden");
+        return;
+      }
+
+      $("days").textContent =
+        Math.floor(left / 86400000);
+
+      $("hours").textContent =
+        String(Math.floor(left / 3600000) % 24).padStart(2, "0");
+
+      $("minutes").textContent =
+        String(Math.floor(left / 60000) % 60).padStart(2, "0");
+
+      $("seconds").textContent =
+        String(Math.floor(left / 1000) % 60).padStart(2, "0");
+    }
+
+    function openGiftPreview(image, alt, description) {
+      $("giftPreviewImage").src = image;
+      $("giftPreviewImage").alt = alt;
+      $("giftPreviewDescription").textContent = description;
+      $("giftPreview").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    document.querySelectorAll(".carousel-frame").forEach(card => {
+      card.addEventListener("click", () => {
+        openGiftPreview(
+          card.querySelector("img").src,
+          card.querySelector("img").alt,
+          card.querySelector(".carousel-description").textContent
+        );
+      });
+    });
+
+    $("mainGiftFrame").addEventListener("click", () => {
+      openGiftPreview(
+        $("mainGiftFrame").querySelector("img").src,
+        "Главный подарок",
+        "Главный подарок. Здесь можно написать его описание."
+      );
+    });
+
+    $("mainGiftFrame").addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        $("mainGiftFrame").click();
+      }
+    });
+
+    function closeGiftPreview() {
+      $("giftPreview").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    $("closeGiftPreview").addEventListener("click", closeGiftPreview);
+    $("giftPreview").addEventListener("click", event => {
+      if (event.target === $("giftPreview")) {
+        closeGiftPreview();
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !$("giftPreview").classList.contains("hidden")) {
+        closeGiftPreview();
+      }
+    });
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    $("viewButton").addEventListener("click", openSite);
+
+    function openSite() {
+      $("countdownScreen").classList.add("hidden");
+      $("mainContent").classList.remove("hidden");
+      enableDeviceParallax();
+
+      if (!map) {
+        createMap();
+      }
+    }
+
+    function createPassedHeartIcon() {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="78" height="78" viewBox="0 0 78 78">
+          <defs>
+            <filter id="emojiHeartGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="4" />
+            </filter>
+          </defs>
+          <circle cx="39" cy="39" r="32" fill="#ff8eae" opacity=".35" filter="url(#emojiHeartGlow)" />
+          <text x="39" y="48" text-anchor="middle" font-size="34" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif">❤️</text>
+        </svg>
+      `;
+
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    function createCircleIcon(number, isOpened, isSelected = false) {
+      const colors = isOpened
+        ? ["#ff8eae", "#d93465", "#fff0f5"]
+        : ["#8d929d", "#4d515c", "#e2e5eb"];
+
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="78"
+             height="78"
+             viewBox="0 0 78 78">
+          <defs>
+            <linearGradient id="markerGradient" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="${colors[0]}" />
+              <stop offset="1" stop-color="${colors[1]}" />
+            </linearGradient>
+            <filter id="markerShadow" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow
+                dx="0"
+                dy="5"
+                stdDeviation="5"
+                flood-color="#250b18"
+                flood-opacity=".75"/>
+            </filter>
+          </defs>
+
+          <circle cx="39" cy="39" r="30" fill="url(#markerGradient)" filter="url(#markerShadow)" />
+          <circle cx="39" cy="39" r="29" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="2" />
+          ${isSelected ? '<circle cx="39" cy="39" r="35" fill="none" stroke="#fff" stroke-opacity=".95" stroke-width="3" />' : ""}
+
+          <text
+            x="39"
+            y="40"
+            fill="#ffffff"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            font-family="monospace"
+            font-size="18"
+            font-weight="bold">
+            ${number}
+          </text>
+        </svg>
+      `;
+
+      return "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(svg);
+    }
+
+    function createMap() {
+      ymaps.ready(() => {
+        map = new ymaps.Map("map", {
+          center: [59.91, 30.32],
+          zoom: 10,
+          controls: ["zoomControl", "fullscreenControl"]
+        });
+
+        points.forEach((point, index) => {
+          const marker = new ymaps.Placemark(
+            point.coords,
+            {
+              hintContent: `Точка №${index + 1}`
+            },
+            {
+              iconLayout: "default#image",
+              iconImageHref: index < opened
+                ? createPassedHeartIcon()
+                : createCircleIcon(index + 1, false),
+              iconImageSize: [78, 78],
+              iconImageOffset: [-39, -39],
+              hasBalloon: false,
+
+              // Вся область сердечка кликабельна
+              iconShape: {
+                type: "Rectangle",
+                coordinates: [
+                  [-39, -39],
+                  [39, 39]
+                ]
+              },
+
+              zIndex: 1000
+            }
+          );
+
+          marker.events.add("click", () => {
+            if (point.readyToOpen) {
+              point.readyToOpen = false;
+              marker.options.set(
+                "iconImageHref",
+                createPassedHeartIcon()
+              );
+            } else if (index <= opened) {
+              points.forEach((item, pointIndex) => {
+                if (item.marker && pointIndex >= opened) {
+                  item.marker.options.set(
+                    "iconImageHref",
+                    createCircleIcon(pointIndex + 1, false, pointIndex === index)
+                  );
+                }
+              });
+            }
+
+            showPoint(index);
+          });
+
+          point.marker = marker;
+          map.geoObjects.add(marker);
+        });
+
+        map.setBounds(map.geoObjects.getBounds(), {
+          checkZoomRange: true,
+          zoomMargin: 80
+        });
+
+        drawLines();
+        updateProgress();
+
+        if (finalOpened) {
+          showFinalGift();
+        }
+      });
+    }
+
+    function showPoint(index) {
+      if (index > opened) {
+        $("pointInfo").innerHTML = `
+          <h2>Точка №${index + 1} закрыта</h2>
+          <p class="muted">
+            Сначала открой предыдущую точку.
+          </p>
+        `;
+        return;
+      }
+
+      const point = points[index];
+      const isUnlocked = index < opened;
+
+      $("pointInfo").innerHTML = `
+        <div class="point-card">
+          <div class="point-frame">
+            <img src="${point.image}" alt="Фото места: ${point.title}">
+          </div>
+
+          <h2>Точка №${index + 1} · ${point.title}</h2>
+
+          <p class="muted">
+            Координаты: ${point.coords[0]}, ${point.coords[1]}
+          </p>
+
+          ${isUnlocked ? `
+            <div class="point-frame">
+              <img src="${point.giftImage}" alt="Подарок для точки №${index + 1}">
+            </div>
+            <p>${point.description}</p>
+          ` : `
+            <input id="pointCode" placeholder="Код с подарка">
+
+            <button class="btn" id="unlockPoint">
+              Разблокировать
+            </button>
+
+            <div class="message" id="pointMessage"></div>
+          `}
+        </div>
+      `;
+
+      if (isUnlocked) {
+        return;
+      }
+
+      $("unlockPoint").addEventListener("click", () => {
+        checkPoint(index);
+      });
+
+      $("pointCode").addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          checkPoint(index);
+        }
+      });
+    }
+
+    function checkPoint(index) {
+      const input = $("pointCode");
+      const message = $("pointMessage");
+
+      if (!input || index !== opened) {
+        return;
+      }
+
+      if (input.value.trim().toUpperCase() !== points[index].code) {
+        message.textContent = "Неверный код.";
+        input.select();
+        return;
+      }
+
+      opened++;
+
+      localStorage.setItem(STORAGE_KEY, String(opened));
+
+      points[index].readyToOpen = true;
+      points[index].marker.options.set(
+        "iconImageHref",
+        createCircleIcon(index + 1, true, true)
+      );
+
+      drawLines();
+      updateProgress();
+
+      if (opened === points.length) {
+        $("pointInfo").innerHTML = `
+          <h2>Всё собрано) собрано ❤️</h2>
+          <p>
+            Все шесть точек открыты. Теперь можно открыть главный подарок(не полароид)
+          </p>
+        `;
+
+        $("finalGift").classList.remove("hidden");
+      } else {
+        $("pointInfo").innerHTML = `
+          <div class="point-card">
+            <div class="point-frame">
+              <img src="${points[index].giftImage}" alt="Подарок для точки №${index + 1}">
+            </div>
+            <h2>Точка №${index + 1} открыта ❤️</h2>
+            <p>${points[index].description}</p>
+          </div>
+          <p class="muted">
+            Следующая точка ждёт тебя на карте.
+          </p>
+        `;
+      }
+    }
+
+    function drawLines() {
+      if (!map) return;
+
+      lines.forEach(item => {
+        map.geoObjects.remove(item);
+      });
+
+      lines = [];
+
+      const coordinates = points
+        .slice(0, opened)
+        .map(point => point.coords);
+
+      if (coordinates.length < 2) {
+        return;
+      }
+
+      if (opened === points.length) {
+        coordinates.push(points[0].coords);
+      }
+
+      const glowLine = new ymaps.Polyline(
+        coordinates,
+        {},
+        {
+          strokeColor: "#ff8eae",
+          strokeWidth: 15,
+          strokeOpacity: .22,
+          hasBalloon: false,
+          zIndex: 1
+        }
+      );
+
+      const mainLine = new ymaps.Polyline(
+        coordinates,
+        {},
+        {
+          strokeColor: "#ef476f",
+          strokeWidth: 5,
+          strokeOpacity: .95,
+          hasBalloon: false,
+          zIndex: 2
+        }
+      );
+
+      map.geoObjects.add(glowLine);
+      map.geoObjects.add(mainLine);
+
+      lines.push(glowLine, mainLine);
+      animateLines();
+    }
+
+    function animateLines() {
+      cancelAnimationFrame(lineAnimation);
+
+      let started = performance.now();
+
+      function frame(now) {
+        const opacity = .7 + Math.sin((now - started) / 500) * .25;
+
+        lines.forEach((line, index) => {
+          line.options.set({
+            strokeOpacity: index === 0
+              ? opacity * .25
+              : opacity
+          });
+        });
+
+        lineAnimation = requestAnimationFrame(frame);
+      }
+
+      lineAnimation = requestAnimationFrame(frame);
+    }
+
+    function updateProgress() {
+      $("openedCount").textContent = opened;
+      $("progressBar").style.width =
+        `${opened / points.length * 100}%`;
+    }
+
+    $("openFinal").addEventListener("click", () => {
+      const value = $("finalCode").value.trim().toUpperCase();
+
+      if (value !== FINAL_CODE) {
+        $("finalMessage").textContent = "Финальное слово неверное.";
+        return;
+      }
+
+      localStorage.setItem("birthday-gift-final", "true");
+      finalOpened = true;
+      showFinalGift();
+
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth"
+        });
+      });
+    });
+
+    function showFinalGift() {
+      $("finalGift").classList.remove("hidden");
+      $("giftContent").classList.remove("hidden");
+      $("finalMessage").textContent = "Главный подарок открыт это nothing или же ничего, а может просто бренд?)"
+    }
+
+    function createFloatingHeart() {
+      const heart = document.createElement("span");
+
+      heart.className = "floating-heart";
+      heart.textContent = ["♥", "❤", "♡", "✦"][Math.floor(Math.random() * 4)];
+      heart.style.left = `${Math.random() * 100}vw`;
+      heart.style.fontSize = `${16 + Math.random() * 28}px`;
+      heart.style.setProperty("--flight-x", `${flightDirectionX}px`);
+      heart.style.setProperty("--flight-y", `${flightDirectionY}px`);
+      heart.style.setProperty("--wind-x", `${flightDirectionX * .35}px`);
+      heart.style.setProperty("--wind-y", `${flightDirectionY * .35}px`);
+      heart.style.setProperty("--cursor-x", `${cursorParallaxX}px`);
+      heart.style.setProperty("--cursor-y", `${cursorParallaxY}px`);
+      heart.style.animationDuration = `${8 + Math.random() * 6}s`;
+
+      $("hearts").appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 22000);
+    }
+
+    function createFloatingCat() {
+      const cat = document.createElement("span");
+
+      cat.className = "floating-cat";
+      cat.textContent = ["=^･ω･^=", "ฅ^•ﻌ•^ฅ", "ᓚᘏᗢ"][
+        Math.floor(Math.random() * 3)
+      ];
+      cat.style.left = `${Math.random() * 94}vw`;
+      cat.style.fontSize = `${14 + Math.random() * 14}px`;
+      cat.style.setProperty("--flight-x", `${flightDirectionX}px`);
+      cat.style.setProperty("--flight-y", `${flightDirectionY}px`);
+      cat.style.setProperty("--wind-x", `${flightDirectionX * .35}px`);
+      cat.style.setProperty("--wind-y", `${flightDirectionY * .35}px`);
+      cat.style.setProperty("--cursor-x", `${cursorParallaxX}px`);
+      cat.style.setProperty("--cursor-y", `${cursorParallaxY}px`);
+      cat.style.animationDuration = `${11 + Math.random() * 7}s`;
+
+      $("hearts").appendChild(cat);
+
+      setTimeout(() => {
+        cat.remove();
+      }, 26000);
+    }
+
+    for (let index = 0; index < 24; index++) {
+      createFloatingHeart();
+    }
+
+    for (let index = 0; index < 10; index++) {
+      createFloatingCat();
+    }
+
+    setInterval(createFloatingHeart, 180);
+    setInterval(createFloatingCat, 500);
+  </script>
+</body>
+</html>
