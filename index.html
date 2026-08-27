@@ -1450,6 +1450,12 @@
 
     $("viewButton").addEventListener("click", openSite);
 
+    function resetPageScroll() {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+
     function resetGiftCarousels() {
       document.querySelectorAll(".carousel").forEach(carousel => {
         carousel.scrollLeft = 0;
@@ -1473,6 +1479,12 @@
       }
 
       const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const keyboardHeight = Math.max(0, window.innerHeight - viewportHeight);
+
+      if (keyboardHeight < 30) {
+        return;
+      }
+
       const rect = active.getBoundingClientRect();
       const minVisibleBottom = viewportHeight - 90;
 
@@ -1486,6 +1498,7 @@
     }
 
     function openSite() {
+      resetPageScroll();
       $("countdownScreen").classList.add("hidden");
       $("mainContent").classList.remove("hidden");
       enableDeviceParallax();
@@ -1503,20 +1516,32 @@
       }
     });
 
-    window.visualViewport?.addEventListener("resize", keepActiveInputAboveKeyboard);
-    window.visualViewport?.addEventListener("scroll", keepActiveInputAboveKeyboard);
+    window.visualViewport?.addEventListener("resize", () => {
+      resetPageScroll();
+      keepActiveInputAboveKeyboard();
+    });
+    window.visualViewport?.addEventListener("scroll", () => {
+      if (document.activeElement instanceof HTMLInputElement) {
+        keepActiveInputAboveKeyboard();
+      }
+    });
     window.addEventListener("resize", () => {
+      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
     window.addEventListener("orientationchange", () => {
+      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
     window.addEventListener("load", () => {
+      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
+
+    resetPageScroll();
 
     function createPassedHeartIcon() {
       const svg = `
