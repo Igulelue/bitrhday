@@ -632,18 +632,22 @@
       display: flex;
       flex-wrap: nowrap;
       gap: 12px;
-      overflow-x: auto;
-      overflow-y: hidden;
       width: 100%;
       max-width: 100%;
       margin: 0;
-      padding: 4px 10px 8px;
+      padding: 4px 0 8px;
       box-sizing: border-box;
+      overflow-x: auto;
+      overflow-y: hidden;
       scroll-snap-type: x mandatory;
-      scroll-padding-inline: 10px;
+      scroll-padding-inline: 0;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,190,211,.7) transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .carousel::-webkit-scrollbar {
+      display: none;
     }
 
     .carousel::-webkit-scrollbar {
@@ -702,6 +706,8 @@
       color: #ffdce6;
       font-size: 11px;
       line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: .02em;
     }
 
     .gift-preview {
@@ -923,18 +929,21 @@
       .gift-modal {
         padding: 20px 14px;
         border-radius: 20px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
       }
 
       .carousel {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px;
         width: 100%;
         max-width: 100%;
         margin: 0;
-        padding: 2px 12px 8px;
-        overflow-x: auto;
-        overflow-y: hidden;
+        padding: 0;
+        overflow: visible;
         box-sizing: border-box;
-        scroll-padding-inline: 12px;
       }
 
       .point-code-row {
@@ -962,20 +971,21 @@
       }
 
       .carousel-frame {
-        flex-basis: 104px;
-        width: 104px;
-        min-width: 104px;
-        min-height: 150px;
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: 0;
+        min-height: 130px;
       }
 
       .carousel-frame img {
-        height: 104px;
+        height: 84px;
       }
 
       .carousel-description {
-        min-height: 38px;
-        padding: 8px 6px 10px;
-        font-size: 9px;
+        min-height: 34px;
+        padding: 7px 4px 8px;
+        font-size: 8px;
+        line-height: 1.2;
       }
 
       .gift-preview-window {
@@ -1088,29 +1098,29 @@
           <p>Поздравляю тебя моя хорошая девочка, обожаю тебя и желаю всего самого лчшего тебе в жизни, никогда не сдавайся и будь лучшей до конца</p>
 
           <div class="carousel">
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 1" data-full-description="Полное описание подарка 1: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-1.png" alt="Подарок 1">
-              <span class="carousel-description">Описание подарка 1</span>
+              <span class="carousel-description">Подарок 1</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 2" data-full-description="Полное описание подарка 2: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-2.png" alt="Подарок 2">
-              <span class="carousel-description">Описание подарка 2</span>
+              <span class="carousel-description">Подарок 2</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 3" data-full-description="Полное описание подарка 3: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-3.png" alt="Подарок 3">
-              <span class="carousel-description">Описание подарка 3</span>
+              <span class="carousel-description">Подарок 3</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 4" data-full-description="Полное описание подарка 4: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-4.png" alt="Подарок 4">
-              <span class="carousel-description">Описание подарка 4</span>
+              <span class="carousel-description">Подарок 4</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 5" data-full-description="Полное описание подарка 5: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-5.png" alt="Подарок 5">
-              <span class="carousel-description">Описание подарка 5</span>
+              <span class="carousel-description">Подарок 5</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 6" data-full-description="Полное описание подарка 6: здесь можно рассказать, что именно это за подарок и почему он важен.">
               <img src="assets/images/gift-6.png" alt="Подарок 6">
-              <span class="carousel-description">Описание подарка 6</span>
+              <span class="carousel-description">Подарок 6</span>
             </button>
           </div>
         </div>
@@ -1380,9 +1390,10 @@
         String(Math.floor(left / 1000) % 60).padStart(2, "0");
     }
 
-    function openGiftPreview(image, alt, description) {
+    function openGiftPreview(image, alt, description, title = "Подарок") {
       $("giftPreviewImage").src = image;
       $("giftPreviewImage").alt = alt;
+      $("giftPreviewTitle").textContent = title;
       $("giftPreviewDescription").textContent = description;
       $("giftPreview").classList.remove("hidden");
       document.body.style.overflow = "hidden";
@@ -1390,10 +1401,14 @@
 
     document.querySelectorAll(".carousel-frame").forEach(card => {
       card.addEventListener("click", () => {
+        const title = card.dataset.title || "Подарок";
+        const fullDescription = card.dataset.fullDescription || card.querySelector(".carousel-description").textContent;
+
         openGiftPreview(
           card.querySelector("img").src,
           card.querySelector("img").alt,
-          card.querySelector(".carousel-description").textContent
+          fullDescription,
+          title
         );
       });
     });
@@ -1438,7 +1453,16 @@
     function resetGiftCarousels() {
       document.querySelectorAll(".carousel").forEach(carousel => {
         carousel.scrollLeft = 0;
-        carousel.scrollTo({ left: 0, behavior: "auto" });
+        carousel.scrollTo({ left: 0, behavior: "instant" });
+      });
+    }
+
+    function setupCarouselStartState() {
+      document.querySelectorAll(".carousel").forEach(carousel => {
+        requestAnimationFrame(() => {
+          carousel.scrollLeft = 0;
+          carousel.scrollTo({ left: 0, behavior: "auto" });
+        });
       });
     }
 
@@ -1466,6 +1490,7 @@
       $("mainContent").classList.remove("hidden");
       enableDeviceParallax();
       resetGiftCarousels();
+      setupCarouselStartState();
 
       if (!map) {
         createMap();
@@ -1480,9 +1505,18 @@
 
     window.visualViewport?.addEventListener("resize", keepActiveInputAboveKeyboard);
     window.visualViewport?.addEventListener("scroll", keepActiveInputAboveKeyboard);
-    window.addEventListener("resize", resetGiftCarousels);
-    window.addEventListener("orientationchange", resetGiftCarousels);
-    window.addEventListener("load", resetGiftCarousels);
+    window.addEventListener("resize", () => {
+      resetGiftCarousels();
+      setupCarouselStartState();
+    });
+    window.addEventListener("orientationchange", () => {
+      resetGiftCarousels();
+      setupCarouselStartState();
+    });
+    window.addEventListener("load", () => {
+      resetGiftCarousels();
+      setupCarouselStartState();
+    });
 
     function createPassedHeartIcon() {
       const svg = `
