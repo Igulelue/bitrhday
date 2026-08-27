@@ -787,7 +787,8 @@
     }
 
     .gift-modal .carousel {
-      justify-content: center;
+      justify-content: flex-start;
+      scroll-padding-inline: 0;
     }
 
     @media (max-width: 850px) {
@@ -885,13 +886,22 @@
         border-radius: 20px;
       }
 
+      .carousel {
+        gap: 8px;
+      }
+
       .carousel-frame {
-        width: 92px;
-        min-height: 136px;
+        width: 110px;
+        min-height: 160px;
       }
 
       .carousel-frame img {
-        height: 92px;
+        height: 110px;
+      }
+
+      .carousel-description {
+        min-height: 38px;
+        font-size: 10px;
       }
 
       .carousel-description {
@@ -1598,9 +1608,15 @@
 
       if (opened === points.length) {
         $("pointInfo").innerHTML = `
-          <h2>Всё собрано) собрано ❤️</h2>
-          <p>
-            Все шесть точек открыты. Теперь можно открыть главный подарок(не полароид)
+          <div class="point-card">
+            <div class="point-frame">
+              <img src="${points[index].giftImage}" alt="Подарок для точки №${index + 1}">
+            </div>
+            <h2>Точка №${index + 1} открыта ❤️</h2>
+            <p>${points[index].description}</p>
+          </div>
+          <p class="muted">
+            Всё собрано! Теперь можно открыть главный подарок.
           </p>
         `;
 
