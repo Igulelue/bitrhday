@@ -1054,7 +1054,7 @@
   <script src="https://api-maps.yandex.ru/2.1/?apikey=YANDEX_API_KEY&lang=ru_RU"></script>
 
   <script>
-    const birthday = new Date("2026-08-29T00:00:00+03:00");
+    const birthday = new Date("2026-08-25T00:00:00+03:00");
 
     const points = [
       {
@@ -1121,6 +1121,7 @@
     let map;
     let lines = [];
     let lineAnimation;
+    let routePulseStart = 0;
     let parallaxFrame;
     let parallaxX = 0;
     let parallaxY = 0;
@@ -1434,8 +1435,14 @@
         map = new ymaps.Map("map", {
           center: [59.91, 30.32],
           zoom: 10,
-          controls: ["zoomControl", "fullscreenControl"]
+          controls: ["zoomControl", "fullscreenControl"],
+          suppressMapOpenBlock: true,
+          yandexMapDisablePoiInteractivity: true
         });
+
+        if (window.innerWidth <= 768) {
+          map.behaviors.disable(["scrollZoom"]);
+        }
 
         points.forEach((point, index) => {
           const marker = new ymaps.Placemark(
@@ -1617,11 +1624,12 @@
     function drawLines() {
       if (!map) return;
 
-      lines.forEach(item => {
-        map.geoObjects.remove(item);
-      });
-
-      lines = [];
+      if (lines.length) {
+        lines.forEach(item => {
+          map.geoObjects.remove(item);
+        });
+        lines = [];
+      }
 
       const coordinates = points
         .slice(0, opened)
@@ -1643,7 +1651,8 @@
           strokeWidth: 15,
           strokeOpacity: .22,
           hasBalloon: false,
-          zIndex: 1
+          zIndex: 1,
+          strokeStyle: "solid"
         }
       );
 
@@ -1655,7 +1664,8 @@
           strokeWidth: 5,
           strokeOpacity: .95,
           hasBalloon: false,
-          zIndex: 2
+          zIndex: 2,
+          strokeStyle: "solid"
         }
       );
 
@@ -1668,11 +1678,11 @@
 
     function animateLines() {
       cancelAnimationFrame(lineAnimation);
-
-      let started = performance.now();
+      routePulseStart = performance.now();
 
       function frame(now) {
-        const opacity = .7 + Math.sin((now - started) / 500) * .25;
+        const elapsed = now - routePulseStart;
+        const opacity = .72 + Math.sin(elapsed / 420) * .2;
 
         lines.forEach((line, index) => {
           line.options.set({
@@ -1682,7 +1692,9 @@
           });
         });
 
-        lineAnimation = requestAnimationFrame(frame);
+        if (elapsed < 1400) {
+          lineAnimation = requestAnimationFrame(frame);
+        }
       }
 
       lineAnimation = requestAnimationFrame(frame);
