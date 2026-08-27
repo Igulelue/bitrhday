@@ -628,6 +628,16 @@
       color: #ffd2df;
     }
 
+    html,
+    body {
+      min-height: 100%;
+      height: 100%;
+    }
+
+    body {
+      overscroll-behavior-y: contain;
+    }
+
     .carousel {
       display: grid;
       grid-auto-flow: column;
@@ -638,7 +648,7 @@
       width: 100%;
       max-width: 100%;
       margin: 0;
-      padding: 4px 0 8px;
+      padding: 4px 8px 8px 8px;
       box-sizing: border-box;
       scroll-snap-type: x proximity;
       scroll-padding: 0;
@@ -931,7 +941,7 @@
         width: 100%;
         max-width: 100%;
         margin: 0;
-        padding: 2px 0 8px;
+        padding: 2px 10px 8px 10px;
         overflow-x: auto;
         overflow-y: hidden;
         box-sizing: border-box;
@@ -939,9 +949,18 @@
       }
 
       .point-code-row {
+        position: sticky;
+        bottom: max(8px, env(safe-area-inset-bottom));
+        z-index: 5;
         display: flex;
         align-items: stretch;
         gap: 8px;
+        margin: 12px 0 4px;
+        background: rgba(12, 8, 13, 0.34);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 6px;
       }
 
       .point-code-row input {
@@ -1426,8 +1445,38 @@
 
     function resetGiftCarousels() {
       document.querySelectorAll(".carousel").forEach(carousel => {
-        carousel.scrollLeft = 0;
+        const offset = window.innerWidth <= 480 ? 10 : 0;
+        carousel.scrollLeft = offset;
+        carousel.scrollTo({ left: offset, behavior: "auto" });
+        if (carousel.firstElementChild) {
+          requestAnimationFrame(() => {
+            carousel.scrollTo({
+              left: offset,
+              behavior: "auto"
+            });
+          });
+        }
       });
+    }
+
+    function keepActiveInputAboveKeyboard() {
+      const active = document.activeElement;
+      if (!(active instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const keyboardOffset = Math.max(0, window.innerHeight - viewportHeight);
+      const rect = active.getBoundingClientRect();
+      const minVisibleBottom = viewportHeight - 110;
+
+      if (rect.bottom > minVisibleBottom) {
+        const nextScroll = window.scrollY + (rect.bottom - minVisibleBottom) + 18 + keyboardOffset;
+        window.scrollTo({
+          top: nextScroll,
+          behavior: "smooth"
+        });
+      }
     }
 
     function openSite() {
@@ -1441,6 +1490,14 @@
       }
     }
 
+    document.addEventListener("focusin", event => {
+      if (event.target instanceof HTMLInputElement) {
+        setTimeout(keepActiveInputAboveKeyboard, 120);
+      }
+    });
+
+    window.visualViewport?.addEventListener("resize", keepActiveInputAboveKeyboard);
+    window.visualViewport?.addEventListener("scroll", keepActiveInputAboveKeyboard);
     window.addEventListener("resize", resetGiftCarousels);
     window.addEventListener("orientationchange", resetGiftCarousels);
     window.addEventListener("load", resetGiftCarousels);
