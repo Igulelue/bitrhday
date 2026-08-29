@@ -29,6 +29,8 @@
 
     html {
       scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scroll-padding-top: 12px;
     }
 
     body {
@@ -37,6 +39,7 @@
       overflow-x: hidden;
       color: var(--white);
       font-family: Ndot55, monospace;
+      overscroll-behavior-y: contain;
       --spot-x: 14%;
       --spot-y: 12%;
       --parallax-x: 0px;
@@ -369,23 +372,46 @@
       opacity: .65;
     }
 
+    @keyframes subtleFloat {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-3px) scale(1.01);
+      }
+    }
+
+    @keyframes softShimmer {
+      0% {
+        background-position: 200% 50%;
+      }
+
+      100% {
+        background-position: -200% 50%;
+      }
+    }
+
     .btn {
       padding: 14px 23px;
       color: #151015;
       border: 1px solid #fff;
       border-radius: 999px;
-      background: #fff;
+      background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,236,242,1) 32%, rgba(255,255,255,1) 100%);
+      background-size: 220% 100%;
       cursor: pointer;
-      transition: transform .55s ease, box-shadow .7s ease, background-color .55s ease;
+      transition: transform .5s cubic-bezier(.22,.8,.24,1), box-shadow .7s ease, background-position .8s ease, filter .35s ease;
+      will-change: transform, box-shadow;
     }
 
     .btn:hover {
-      transform: translateY(-3px);
+      transform: translateY(-3px) scale(1.01);
       box-shadow: 0 0 28px rgba(255,255,255,.65);
+      background-position: 100% 50%;
     }
 
     .btn:active {
-      transform: scale(.96);
+      transform: scale(.97);
     }
 
     .content {
@@ -412,7 +438,8 @@
       background: rgba(0,0,0,.25);
       position: relative;
       animation: panelReveal .8s cubic-bezier(.22,.8,.24,1) both;
-      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+      transition: transform .38s cubic-bezier(.22,.8,.24,1), box-shadow .45s ease, border-color .35s ease, background-color .35s ease, filter .35s ease;
+      will-change: transform, box-shadow, filter;
     }
 
     .panel:nth-child(2) {
@@ -536,6 +563,7 @@
 
     .point-card {
       animation: appear .9s ease both;
+      transition: opacity .35s ease, transform .35s ease;
     }
 
     .point-frame,
@@ -546,6 +574,8 @@
       margin-bottom: 15px;
       overflow: hidden;
       box-shadow: 0 14px 34px rgba(0,0,0,.3);
+      transition: transform .45s cubic-bezier(.22,.8,.24,1), box-shadow .45s ease, filter .35s ease;
+      will-change: transform, box-shadow;
     }
 
     .point-frame {
@@ -571,6 +601,8 @@
       background: rgba(0,0,0,.22);
       box-shadow: inset 0 0 28px rgba(0,0,0,.25), 0 14px 34px rgba(0,0,0,.3);
       cursor: pointer;
+      transition: transform .45s cubic-bezier(.22,.8,.24,1), box-shadow .45s ease, border-color .35s ease, filter .35s ease;
+      will-change: transform, box-shadow;
     }
 
     .gift-frame .main-photo {
@@ -583,9 +615,16 @@
       box-shadow: none;
     }
 
+    .gift-frame:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,190,211,.7);
+      box-shadow: inset 0 0 28px rgba(0,0,0,.25), 0 20px 40px rgba(0,0,0,.38), 0 0 30px rgba(255,143,170,.15);
+    }
+
     .gift-frame .main-photo:hover {
       transform: scale(1.025);
       box-shadow: none;
+      filter: saturate(1.1) brightness(1.04);
     }
 
     input {
@@ -597,6 +636,13 @@
       border-radius: 14px;
       outline: none;
       background: rgba(0,0,0,.3);
+      transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease, background-color .25s ease;
+    }
+
+    input:focus {
+      border-color: rgba(255,190,211,.9);
+      box-shadow: 0 0 0 4px rgba(255,190,211,.12);
+      transform: translateY(-1px);
     }
 
     .point-code-row {
@@ -616,6 +662,7 @@
       flex: 0 0 auto;
       margin: 0;
       white-space: nowrap;
+      transition: transform .35s cubic-bezier(.22,.8,.24,1), box-shadow .35s ease, filter .35s ease;
     }
 
     input::placeholder {
@@ -626,6 +673,60 @@
       min-height: 24px;
       margin: 12px 0;
       color: #ffd2df;
+    }
+
+    .point-hint-wrap {
+      margin-top: 14px;
+    }
+
+    .point-hint-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .point-hint-button:hover,
+    .point-hint-button:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(255,190,211,.9);
+      background: rgba(255,190,211,.12);
+      outline: none;
+    }
+
+    .point-hint {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,190,211,.35);
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      color: #ffe9f0;
+      line-height: 1.5;
+      box-shadow: inset 0 0 12px rgba(255,146,177,.08);
+      animation: pointHintReveal .28s ease both;
+    }
+
+    @keyframes pointHintReveal {
+      from {
+        opacity: 0;
+        transform: translateY(-6px) scale(.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .point-hint.hidden {
+      display: none;
     }
 
     .carousel {
@@ -675,7 +776,8 @@
       cursor: pointer;
       font: inherit;
       text-align: left;
-      transition: border-color .45s ease, box-shadow .45s ease, background-color .45s ease;
+      transition: border-color .45s ease, box-shadow .45s ease, background-color .45s ease, transform .35s cubic-bezier(.22,.8,.24,1), filter .35s ease;
+      will-change: transform;
     }
 
     .carousel-frame img {
@@ -688,6 +790,8 @@
     .carousel-frame:hover {
       border-color: rgba(255,190,211,.72);
       box-shadow: 0 16px 32px rgba(0,0,0,.42), 0 0 20px rgba(255,143,170,.2);
+      transform: translateY(-3px) scale(1.01);
+      filter: saturate(1.08);
     }
 
     .carousel-frame:focus-visible,
@@ -733,12 +837,15 @@
       background: linear-gradient(145deg, rgba(25,10,19,.98), rgba(87,25,49,.97));
       box-shadow: 0 28px 90px rgba(0,0,0,.62), 0 0 34px rgba(255,96,145,.2);
       animation: previewReveal .45s cubic-bezier(.22,.8,.24,1) both;
+      transition: transform .35s ease, box-shadow .35s ease;
     }
 
     .gift-preview-close {
       position: absolute;
       top: 10px;
       right: 12px;
+      display: grid;
+      place-items: center;
       width: 34px;
       height: 34px;
       padding: 0;
@@ -749,6 +856,31 @@
       cursor: pointer;
       font-size: 22px;
       line-height: 1;
+      text-align: center;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .gift-preview-close:focus,
+    .gift-preview-close:focus-visible,
+    .gift-preview-close:active {
+      outline: none;
+      box-shadow: none;
+      background: rgba(0,0,0,.3);
+      border-color: rgba(255,255,255,.4);
+      filter: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .gift-preview-close::before {
+      content: "";
+      display: block;
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
     }
 
     .gift-preview-image {
@@ -852,6 +984,10 @@
     }
 
     @media (max-width: 480px) {
+      html {
+        font-size: 14px;
+      }
+
       .screen,
       .content {
         padding: 8px;
@@ -1102,25 +1238,25 @@
               <img src="assets/images/gift-1.png" alt="Дорожное зеркало">
               <span class="carousel-description">Дорожное зеркало</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Крутой ремешок для камеры" data-full-description="Полное описание подарка 2: здесь можно рассказать, что именно это за подарок и почему он важен.">
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Крутой ремешок для камеры" data-full-description="Мне всегда не нравилось как ремень для камеры выглядит, натирает шею часто да и в целом не очень удобен из за своей форму и громозткости, я надеюсь что этот ремешок будет больше подходить к тебе и твоему образу, он менее громоздкий и более прикольный, вооот">
               <img src="assets/images/gift-2.png" alt="Крутой ремешок для камеры">
               <span class="carousel-description">Крутой ремешок для камеры</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 3" data-full-description="Полное описание подарка 3: здесь можно рассказать, что именно это за подарок и почему он важен.">
-              <img src="assets/images/gift-3.png" alt="Подарок 3">
-              <span class="carousel-description">Подарок 3</span>
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="фотоальбом" data-full-description="Фотоальбом в котором мы будем хранить наши самые самые моменты, может в будущем будем печатать свои фото и как то красиво оформлять">
+              <img src="assets/images/gift-3.png" alt="фотоальбом">
+              <span class="carousel-description">фотоальбом</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 4" data-full-description="Полное описание подарка 4: здесь можно рассказать, что именно это за подарок и почему он важен.">
-              <img src="assets/images/gift-4.png" alt="Подарок 4">
-              <span class="carousel-description">Подарок 4</span>
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Картридж" data-full-description="Это картридж для полароида, в одном таком - 8 фото. Так что количество фото ограничено, из за этого каждый кадр - очень ценен, что заставляет задумываться перед тем как сделать каждый кадр">
+              <img src="assets/images/gift-4.png" alt="Картридж">
+              <span class="carousel-description">Картридж</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 5" data-full-description="Полное описание подарка 5: здесь можно рассказать, что именно это за подарок и почему он важен.">
-              <img src="assets/images/gift-5.png" alt="Подарок 5">
-              <span class="carousel-description">Подарок 5</span>
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Калимба" data-full-description="Калимба что бы прикольна играть песенке и мемхехемхемхемхемемхемхемхемхехехеехехе, прикольный недорогой музыкальный инструмент, который приятно и прикольно звучит и на нем легко играть">
+              <img src="assets/images/gift-5.png" alt="Калимба">
+              <span class="carousel-description">Калимба</span>
             </button>
-            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Подарок 6" data-full-description="Полное описание подарка 6: здесь можно рассказать, что именно это за подарок и почему он важен.">
-              <img src="assets/images/gift-6.png" alt="Подарок 6">
-              <span class="carousel-description">Подарок 6</span>
+            <button class="carousel-frame" type="button" aria-pressed="false" data-title="Полароид" data-full-description="Полароид - что бы сразу печатать лучшие моменты в нашей жизни, спасибо тебе, мип, в будущем мы израсходуем много картриджей, ведь хороших моментов будет много, я в этом не сомневаюсь">
+              <img src="assets/images/gift-6.png" alt="Полароид">
+              <span class="carousel-description">Полароид</span>
             </button>
           </div>
         </div>
@@ -1152,7 +1288,8 @@
         image: "assets/images/point-1.jpg",
         giftImage: "assets/images/gift-1.png",
         readyToOpen: false,
-        description: "Изогнутое зеркало! теперь у нас дома будет вайб парковки! (реклама ООО макс.ру)"
+        description: "Изогнутое зеркало! теперь у нас дома будет вайб парковки! (реклама ООО макс.ру)",
+        hint: "Сколько тебе исполнилось ?"
       },
       {
         title: "Вторая точка",
@@ -1161,7 +1298,8 @@
         image: "assets/images/point-2.jpg",
         giftImage: "assets/images/gift-2.png",
         readyToOpen: false,
-        description: "Ремешок для фотика! теперь тебе будет удобнее его носить, ну и выглядит получше)"
+        description: "Ремешок для фотика! теперь тебе будет удобнее его носить, ну и выглядит получше)",
+        hint: "Номер группы где мы познакомились"
       },
       {
         title: "Третья точка",
@@ -1170,7 +1308,8 @@
         image: "assets/images/point-3.jpg",
         giftImage: "assets/images/gift-3.png",
         readyToOpen: false,
-        description: "Фотоальбом! будем в него собирать фотки свои класные, где их печатать только("
+        description: "Фотоальбом! будем в него собирать фотки свои класные, где их печатать только(",
+        hint: "Первый день вот самое-самое начало"
       },
       {
         title: "Четвёртая точка",
@@ -1179,7 +1318,8 @@
         image: "assets/images/point-4.jpg",
         giftImage: "assets/images/gift-4.png",
         readyToOpen: false,
-        description: "Картридж какой-то, догадываешься от чего?"
+        description: "Картридж какой-то, догадываешься от чего?",
+        hint: "Годовщина вот нашего мип"
       },
       {
         title: "Пятая точка",
@@ -1188,7 +1328,8 @@
         image: "assets/images/point-5.jpg",
         giftImage: "assets/images/gift-5.png",
         readyToOpen: false,
-        description: "Калимба, ну что б преподов доставать"
+        description: "Калимба, ну что б преподов доставать",
+        hint: "Дата первого мип"
       },
       {
         title: "Шестая точка",
@@ -1197,7 +1338,8 @@
         image: "assets/images/point-6.jpg",
         giftImage: "assets/images/gift-6.png",
         readyToOpen: false,
-        description: "Полароид, ну вот с него фотки и будем в альбом складывать, но будь осторожна, в одном картридже их всего 8"
+        description: "Полароид, ну вот с него фотки и будем в альбом складывать, но будь осторожна, в одном картридже их всего 8",
+        hint: "Бесконечность повернутая на 90 градусов"
       }
     ];
 
@@ -1390,6 +1532,30 @@
         String(Math.floor(left / 1000) % 60).padStart(2, "0");
     }
 
+    function smoothScrollTo(targetY) {
+      const startY = window.scrollY || document.documentElement.scrollTop || 0;
+      const distance = targetY - startY;
+      const duration = 680;
+      const startTime = performance.now();
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+
+        window.scrollTo({
+          top: startY + distance * eased,
+          behavior: "auto"
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
     function openGiftPreview(image, alt, description, title = "Подарок") {
       $("giftPreviewImage").src = image;
       $("giftPreviewImage").alt = alt;
@@ -1450,12 +1616,6 @@
 
     $("viewButton").addEventListener("click", openSite);
 
-    function resetPageScroll() {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    }
-
     function resetGiftCarousels() {
       document.querySelectorAll(".carousel").forEach(carousel => {
         carousel.scrollLeft = 0;
@@ -1490,15 +1650,11 @@
 
       if (rect.bottom > minVisibleBottom) {
         const nextScroll = window.scrollY + (rect.bottom - minVisibleBottom) + 16;
-        window.scrollTo({
-          top: nextScroll,
-          behavior: "smooth"
-        });
+        smoothScrollTo(nextScroll);
       }
     }
 
     function openSite() {
-      resetPageScroll();
       $("countdownScreen").classList.add("hidden");
       $("mainContent").classList.remove("hidden");
       enableDeviceParallax();
@@ -1517,7 +1673,6 @@
     });
 
     window.visualViewport?.addEventListener("resize", () => {
-      resetPageScroll();
       keepActiveInputAboveKeyboard();
     });
     window.visualViewport?.addEventListener("scroll", () => {
@@ -1526,22 +1681,17 @@
       }
     });
     window.addEventListener("resize", () => {
-      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
     window.addEventListener("orientationchange", () => {
-      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
     window.addEventListener("load", () => {
-      resetPageScroll();
       resetGiftCarousels();
       setupCarouselStartState();
     });
-
-    resetPageScroll();
 
     function createPassedHeartIcon() {
       const svg = `
@@ -1729,8 +1879,26 @@
 
             <div class="message" id="pointMessage"></div>
           `}
+
+          <div class="point-hint-wrap">
+            <button class="point-hint-button" type="button" data-index="${index}">
+              Подсказка
+            </button>
+            <div class="point-hint hidden" id="pointHint-${index}">
+              ${(point.hint || "Подсказка ещё не добавлена.").replace(/\n/g, "<br>")}
+            </div>
+          </div>
         </div>
       `;
+
+      const hintButton = document.querySelector(`.point-hint-button[data-index="${index}"]`);
+      const hintPanel = document.getElementById(`pointHint-${index}`);
+
+      if (hintButton && hintPanel) {
+        hintButton.addEventListener("click", () => {
+          hintPanel.classList.toggle("hidden");
+        });
+      }
 
       if (isUnlocked) {
         return;
@@ -1747,6 +1915,14 @@
       });
     }
 
+    function normalizeCode(value) {
+      return String(value)
+        .trim()
+        .toUpperCase()
+        .replace(/,/g, ".")
+        .replace(/\./g, ".");
+    }
+
     function checkPoint(index) {
       const input = $("pointCode");
       const message = $("pointMessage");
@@ -1755,7 +1931,10 @@
         return;
       }
 
-      if (input.value.trim().toUpperCase() !== points[index].code) {
+      const normalizedInput = normalizeCode(input.value);
+      const normalizedCode = normalizeCode(points[index].code);
+
+      if (normalizedInput !== normalizedCode) {
         message.textContent = "Неверный код.";
         input.select();
         return;
@@ -1903,10 +2082,7 @@
       showFinalGift();
 
       requestAnimationFrame(() => {
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: "smooth"
-        });
+        smoothScrollTo(document.documentElement.scrollHeight);
       });
     });
 
